@@ -1,9 +1,76 @@
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, total, updateQuantity, removeItem, clearCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [notes, setNotes] = useState("");
+  const [placing, setPlacing] = useState(false);
+
+  const handlePlaceOrder = async () => {
+    if (!user) {
+      setIsOpen(false);
+      navigate("/auth");
+      toast({ title: "Please sign in to place an order" });
+      return;
+    }
+    if (!phone.trim()) {
+      toast({ title: "Phone number required", variant: "destructive" });
+      return;
+    }
+    setPlacing(true);
+
+    const { data: order, error } = await supabase
+      .from("orders")
+      .insert({
+        user_id: user.id,
+        total_amount: total,
+        phone: phone.trim(),
+        delivery_address: address.trim() || null,
+        notes: notes.trim() || null,
+      })
+      .select()
+      .single();
+
+    if (error || !order) {
+      toast({ title: "Order failed", description: error?.message, variant: "destructive" });
+      setPlacing(false);
+      return;
+    }
+
+    const orderItems = items.map((item) => ({
+      order_id: order.id,
+      menu_item_id: item.id,
+      item_name: item.name,
+      quantity: item.quantity,
+      unit_price: item.price,
+    }));
+
+    const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
+
+    if (itemsError) {
+      toast({ title: "Error saving order items", description: itemsError.message, variant: "destructive" });
+    } else {
+      toast({ title: "Order placed! 🔥", description: "We'll start preparing your food right away." });
+      clearCart();
+      setPhone("");
+      setAddress("");
+      setNotes("");
+      setIsOpen(false);
+      navigate("/my-orders");
+    }
+    setPlacing(false);
+  };
 
   return (
     <AnimatePresence>
@@ -39,59 +106,75 @@ const CartDrawer = () => {
                   <p>Your cart is empty</p>
                 </div>
               ) : (
-                items.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="flex gap-4 p-3 bg-secondary/50 rounded-xl"
-                  >
-                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover" />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-sm truncate">{item.name}</h4>
-                      <p className="text-primary text-sm font-bold">Rs {item.price * item.quantity}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-6 h-6 rounded-md bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                          <Minus className="w-3 h-3" />
-                        </button>
-                        <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-6 h-6 rounded-md bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                          <Plus className="w-3 h-3" />
-                        </button>
-                        <button onClick={() => removeItem(item.id)} className="ml-auto p-1 hover:text-destructive transition-colors">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                <>
+                  {items.map((item) => (
+                    <motion.div
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="flex gap-4 p-3 bg-secondary/50 rounded-xl"
+                    >
+                      <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover" />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm truncate">{item.name}</h4>
+                        <p className="text-primary text-sm font-bold">Rs {item.price * item.quantity}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-6 h-6 rounded-md bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-sm font-medium w-6 text-center">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-6 h-6 rounded-md bg-muted flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                            <Plus className="w-3 h-3" />
+                          </button>
+                          <button onClick={() => removeItem(item.id)} className="ml-auto p-1 hover:text-destructive transition-colors">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))
+                    </motion.div>
+                  ))}
+
+                  {/* Order details form */}
+                  <div className="space-y-3 pt-4 border-t border-border">
+                    <input
+                      placeholder="Phone number *"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-secondary rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary text-sm"
+                    />
+                    <input
+                      placeholder="Delivery address (optional)"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-secondary rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary text-sm"
+                    />
+                    <textarea
+                      placeholder="Special notes (optional)"
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      rows={2}
+                      className="w-full px-4 py-2.5 bg-secondary rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary text-sm"
+                    />
+                  </div>
+                </>
               )}
             </div>
 
             {items.length > 0 && (
-              <div className="p-6 border-t border-border space-y-4">
+              <div className="p-6 border-t border-border space-y-3">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
                   <span className="text-primary">Rs {total}</span>
                 </div>
-                <a
-                  href="https://www.foodpanda.pk"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full py-3.5 bg-gradient-fire rounded-xl text-primary-foreground font-semibold text-center hover:opacity-90 transition-opacity shadow-glow"
+                <button
+                  onClick={handlePlaceOrder}
+                  disabled={placing}
+                  className="block w-full py-3.5 bg-gradient-fire rounded-xl text-primary-foreground font-semibold text-center hover:opacity-90 transition-opacity shadow-glow disabled:opacity-50"
                 >
-                  Order on Foodpanda
-                </a>
-                <a
-                  href="https://wa.me/923305577668"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full py-3.5 bg-secondary rounded-xl text-secondary-foreground font-semibold text-center hover:bg-secondary/80 transition-colors border border-border"
-                >
-                  Order via WhatsApp
-                </a>
+                  {placing ? "Placing Order..." : user ? "Place Order" : "Sign In to Order"}
+                </button>
                 <button onClick={clearCart} className="w-full text-sm text-muted-foreground hover:text-destructive transition-colors">
                   Clear Cart
                 </button>
