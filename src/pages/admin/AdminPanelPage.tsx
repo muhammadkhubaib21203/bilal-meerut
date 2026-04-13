@@ -15,12 +15,17 @@ import {
   UtensilsCrossed,
   ShoppingBag,
   LogOut,
+  MessageSquare,
+  CheckCircle2,
+  Circle,
+  Mail
 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type MenuItem = Tables<"menu_items">;
 type Order = Tables<"orders">;
 type OrderItem = Tables<"order_items">;
+type ContactMessage = Tables<"contact_messages">;
 
 interface OrderWithItems extends Order {
   order_items: OrderItem[];
@@ -39,7 +44,7 @@ const AdminPanelPage = () => {
   const { user, isAdmin, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [tab, setTab] = useState<"menu" | "orders">("orders");
+  const [tab, setTab] = useState<"menu" | "orders" | "messages">("orders");
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -56,6 +61,7 @@ const AdminPanelPage = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
 
   const [orders, setOrders] = useState<OrderWithItems[]>([]);
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [loadingData, setLoadingData] = useState(true);
 
@@ -70,6 +76,14 @@ const AdminPanelPage = () => {
       .order("category")
       .order("name");
     if (data) setMenuItems(data);
+  };
+
+  const fetchMessages = async () => {
+    const { data } = await supabase
+      .from("contact_messages")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (data) setMessages(data);
   };
 
   const fetchOrders = async () => {
@@ -93,11 +107,24 @@ const AdminPanelPage = () => {
 
   useEffect(() => {
     if (user && isAdmin) {
-      Promise.all([fetchMenu(), fetchOrders()]).then(() =>
+      Promise.all([fetchMenu(), fetchOrders(), fetchMessages()]).then(() =>
         setLoadingData(false),
       );
     }
   }, [user, isAdmin]);
+
+  const handleUpdateMessageStatus = async (messageId: string, status: string) => {
+    const { error } = await supabase
+      .from("contact_messages")
+      .update({ status })
+      .eq("id", messageId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: `Message marked as ${status}` });
+    fetchMessages();
+  };
 
   const resetForm = () => {
     setForm({
@@ -251,6 +278,17 @@ const AdminPanelPage = () => {
           >
             <UtensilsCrossed className="w-4 h-4" /> Menu Items
           </button>
+          <button
+            onClick={() => setTab("messages")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${tab === "messages" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"}`}
+          >
+            <div className="relative">
+              <MessageSquare className="w-4 h-4" />
+              {messages.filter(m => m.status === 'unread').length > 0 && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full"></span>
+              )}
+            </div> Messages
+          </button>
         </nav>
 
         <div className="space-y-2">
@@ -286,21 +324,36 @@ const AdminPanelPage = () => {
           >
             Menu
           </button>
+          <button
+            onClick={() => setTab("messages")}
+            className={`relative px-3 py-1.5 rounded-lg text-xs font-medium ${tab === "messages" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
+          >
+            Messages
+            {messages.filter(m => m.status === 'unread').length > 0 && (
+              <span className="absolute 0 top-0 right-0 w-2 h-2 bg-destructive rounded-full translate-x-1/2 -translate-y-1/2"></span>
+            )}
+          </button>
         </div>
       </div>
 
       <div className="md:ml-64 p-4 md:p-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div className="bg-card/80 border border-border rounded-2xl p-4">
-            <p className="text-xs text-muted-foreground">Total Orders</p>
-            <p className="text-2xl font-display font-bold text-gradient-fire">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div className="bg-card/80 border border-border rounded-2xl p-4 shadow-card">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Total Orders</p>
+            <p className="text-3xl mt-2 font-display font-bold text-gradient-fire">
               {orders.length}
             </p>
           </div>
-          <div className="bg-card/80 border border-border rounded-2xl p-4">
-            <p className="text-xs text-muted-foreground">Menu Items</p>
-            <p className="text-2xl font-display font-bold text-gradient-fire">
+          <div className="bg-card/80 border border-border rounded-2xl p-4 shadow-card">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Menu Items</p>
+            <p className="text-3xl mt-2 font-display font-bold text-gradient-fire">
               {menuItems.length}
+            </p>
+          </div>
+          <div className="bg-card/80 border border-border rounded-2xl p-4 shadow-card hidden lg:block">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Unread Messages</p>
+            <p className="text-3xl mt-2 font-display font-bold text-primary">
+              {messages.filter(m => m.status === 'unread').length}
             </p>
           </div>
         </div>
@@ -632,6 +685,84 @@ const AdminPanelPage = () => {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {tab === "messages" && (
+          <div>
+            <h2 className="font-display text-2xl font-bold mb-6">
+              Contact Messages
+            </h2>
+            {messages.length === 0 ? (
+              <p className="text-muted-foreground text-center py-12">
+                No messages yet
+              </p>
+            ) : (
+              <div className="space-y-4 max-w-7xl">
+                {messages.map((msg) => (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    key={msg.id}
+                    className={`bg-card/80 backdrop-blur border rounded-2xl p-5 shadow-card transition-all ${msg.status === 'unread' ? 'border-primary' : 'border-border'}`}
+                  >
+                    <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mb-4">
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <h4 className="font-semibold text-lg">{msg.name}</h4>
+                          {msg.status === 'unread' && <span className="bg-primary/20 text-primary text-xs px-2 py-0.5 rounded-full border border-primary/30">New</span>}
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                          <span>{msg.email}</span>
+                          {msg.phone && <span>• {msg.phone}</span>}
+                          <span>• {new Date(msg.created_at || '').toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-2 w-full md:w-auto">
+                        <a
+                          href={`https://mail.google.com/mail/?view=cm&fs=1&to=${msg.email}&su=${encodeURIComponent('Reply to your inquiry at Meerut Famous Kabab Paratha')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                        >
+                          <Mail className="w-4 h-4" /> Reply
+                        </a>
+                        {msg.status === 'unread' ? (
+                          <button
+                            onClick={() => handleUpdateMessageStatus(msg.id, "read")}
+                            className="bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                          >
+                            <CheckCircle2 className="w-4 h-4" /> Mark as Read
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleUpdateMessageStatus(msg.id, "unread")}
+                            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                          >
+                            <Circle className="w-4 h-4" /> Mark Unread
+                          </button>
+                        )}
+                        <button
+                          onClick={async () => {
+                            if (confirm("Delete this message?")) {
+                              await supabase.from("contact_messages").delete().eq("id", msg.id);
+                              fetchMessages();
+                            }
+                          }}
+                          className="bg-destructive/10 hover:bg-destructive/20 text-destructive px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                    <div className="bg-secondary/40 p-4 rounded-xl text-foreground/90 whitespace-pre-wrap border border-border/50 text-sm">
+                      {msg.message}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

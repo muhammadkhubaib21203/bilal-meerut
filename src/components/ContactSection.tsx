@@ -1,7 +1,32 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Phone, Clock, ExternalLink } from "lucide-react";
+import { MapPin, Phone, Clock, ExternalLink, Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const ContactSection = () => {
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert({ ...form });
+
+    if (error) {
+      toast({ title: "Failed to send message", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Message Sent! 🚀", description: "Thanks for reaching out. We will get back to you soon." });
+      setForm({ name: "", email: "", phone: "", message: "" });
+    }
+
+    setLoading(false);
+  };
+
   return (
     <section id="contact" className="py-20 bg-gradient-smoke">
       <div className="container mx-auto px-4">
@@ -12,67 +37,131 @@ const ContactSection = () => {
           className="text-center mb-12"
         >
           <h2 className="font-display text-4xl md:text-5xl font-bold mb-4">
-            Find <span className="text-gradient-fire">Us</span>
+            Contact <span className="text-gradient-fire">Us</span>
           </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Have a question or want to place a large order? Reach out to us.
+          </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
+          {/* Left Column: Info & Map */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <div className="flex items-start gap-4 p-5 bg-card rounded-2xl border border-border">
-              <MapPin className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-semibold mb-1">Location</h3>
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="p-5 bg-card rounded-2xl border border-border">
+                <MapPin className="w-8 h-8 text-primary mb-3" />
+                <h3 className="font-semibold mb-2">Location</h3>
+                <p className="text-muted-foreground text-sm font-medium mb-1">Meerut Famous Kabab Paratha</p>
                 <p className="text-muted-foreground text-sm">Main Nawaz Sharif Park, X 4th St, Sector X Gulshan-e-Maymar, Karachi, 75340, Pakistan</p>
               </div>
-            </div>
 
-            <div className="flex items-start gap-4 p-5 bg-card rounded-2xl border border-border">
-              <Phone className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-semibold mb-1">Phone</h3>
-                <a href="tel:+923305577668" className="text-primary hover:underline text-sm">+92 330 5577668</a>
+              <div className="space-y-6">
+                <div className="p-5 bg-card rounded-2xl border border-border h-fit">
+                  <Phone className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="font-semibold mb-2">Phone</h3>
+                  <a href="tel:+923305577668" className="text-muted-foreground hover:text-primary transition-colors text-sm block mb-1">
+                    +92 330 5577668
+                  </a>
+                </div>
+                <div className="p-5 bg-card rounded-2xl border border-border h-fit">
+                  <Clock className="w-8 h-8 text-primary mb-3" />
+                  <h3 className="font-semibold mb-2">Hours</h3>
+                  <p className="text-muted-foreground text-sm">Open Daily<br/>12:00 PM to 3:00 AM</p>
+                </div>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-5 bg-card rounded-2xl border border-border">
-              <Clock className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="font-semibold mb-1">Hours</h3>
-                <p className="text-muted-foreground text-sm">Open Daily · Closes 3:00 AM</p>
-              </div>
+            <div className="rounded-2xl overflow-hidden border border-border h-64 relative group">
+              <iframe
+                src="https://maps.google.com/maps?q=25.0216392,67.1274399+(Meerut+Famous+Kabab+Paratha)&z=17&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Restaurant Location"
+              />
+              <div className="absolute inset-0 bg-background/20 pointer-events-none group-hover:bg-transparent transition-colors" />
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=Meerut+Famous+Kabab+Paratha+Main+Nawaz+Sharif+Park+Karachi"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute bottom-4 right-4 inline-flex items-center gap-2 px-4 py-2 bg-card/90 backdrop-blur rounded-lg text-foreground font-semibold hover:bg-primary hover:text-primary-foreground transition-all shadow-card text-sm pointer-events-auto border border-border"
+              >
+                <ExternalLink className="w-4 h-4" /> Open Maps
+              </a>
             </div>
-
-            <a
-              href="https://maps.google.com/?q=24CG+MX+Gulshan-e-Maymar,+Karachi"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-fire rounded-xl text-primary-foreground font-semibold hover:opacity-90 transition-opacity shadow-glow"
-            >
-              <ExternalLink className="w-4 h-4" /> Open in Google Maps
-            </a>
           </motion.div>
 
+          {/* Right Column: Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="rounded-2xl overflow-hidden border border-border h-80 md:h-auto"
+            className="bg-card rounded-2xl border border-border p-6 shadow-card h-full"
           >
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3618.0!2d67.075!3d24.975!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjTCsDU4JzMwLjAiTiA2N8KwMDQnMzAuMCJF!5e0!3m2!1sen!2spk!4v1"
-              width="100%"
-              height="100%"
-              style={{ border: 0, minHeight: "320px" }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Restaurant Location"
-            />
+            <h3 className="font-display text-2xl font-bold mb-6">Send us a Message</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary/50 rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors text-sm"
+                    placeholder="John Doe"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-muted-foreground">Email Address *</label>
+                  <input
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary/50 rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors text-sm"
+                    placeholder="john@example.com"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  className="w-full px-4 py-3 bg-secondary/50 rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors text-sm"
+                  placeholder="+92 3XX XXXXXXX"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Your Message *</label>
+                <textarea
+                  required
+                  rows={4}
+                  value={form.message}
+                  onChange={(e) => setForm({ ...form, message: e.target.value })}
+                  className="w-full px-4 py-3 bg-secondary/50 rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors text-sm resize-none"
+                  placeholder="How can we help you?"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 bg-gradient-fire rounded-xl text-primary-foreground font-bold hover:opacity-90 transition-opacity shadow-glow disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+              >
+                {loading ? "Sending..." : "Send Message"}
+                {!loading && <Send className="w-5 h-5" />}
+              </button>
+            </form>
           </motion.div>
         </div>
       </div>
