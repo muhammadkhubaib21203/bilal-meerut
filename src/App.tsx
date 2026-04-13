@@ -1,15 +1,17 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
-import Index from "./pages/Index.tsx";
-import AuthPage from "./pages/AuthPage.tsx";
-import AdminPanelPage from "./pages/admin/AdminPanelPage.tsx";
-import MyOrdersPage from "./pages/MyOrdersPage.tsx";
-import NotFound from "./pages/NotFound.tsx";
+
+const Index = lazy(() => import("./pages/Index.tsx"));
+const AuthPage = lazy(() => import("./pages/AuthPage.tsx"));
+const AdminPanelPage = lazy(() => import("./pages/admin/AdminPanelPage.tsx"));
+const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage.tsx"));
+const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -21,13 +23,15 @@ const App = () => (
           <CartProvider>
             <Toaster />
             <Sonner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/admin" element={<AdminPanelPage />} />
-              <Route path="/my-orders" element={<MyOrdersPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <Suspense fallback={<div className="min-h-screen bg-background" />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/admin" element={<AdminPanelPage />} />
+                <Route path="/my-orders" element={<MyOrdersPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
           </CartProvider>
         </AuthProvider>
       </BrowserRouter>
