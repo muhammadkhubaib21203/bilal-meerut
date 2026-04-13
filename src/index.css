@@ -102,7 +102,7 @@ html {
   background: hsl(20 10% 8%);
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(20 10% 20%);
+  background: hsl(28 90% 55%);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {

@@ -7,7 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Index from "./pages/Index.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
-import AdminPage from "./pages/AdminPage.tsx";
+import AdminPanelPage from "./pages/admin/AdminPanelPage.tsx";
 import MyOrdersPage from "./pages/MyOrdersPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -24,7 +24,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<AuthPage />} />
-              <Route path="/admin" element={<AdminPage />} />
+              <Route path="/admin" element={<AdminPanelPage />} />
               <Route path="/my-orders" element={<MyOrdersPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
