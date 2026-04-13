@@ -4,7 +4,6 @@ import { ShoppingCart, Menu, X, Phone, User, LogOut, Shield, Package } from "luc
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo.png";
 
 const Navbar = () => {
   const { itemCount, setIsOpen } = useCart();
@@ -27,10 +26,7 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 flex items-center justify-between h-16 md:h-20">
         <a href="#home" className="flex items-center gap-2">
-          <img src={logo} alt="Logo" className="w-10 h-10 object-contain" />
-          <span className="font-display text-lg md:text-xl font-bold text-gradient-fire">
-            Bilal Kabab
-          </span>
+          <img src="/logo.png" alt="Logo" className="w-40 h-40 object-contain" />
         </a>
 
         <div className="hidden md:flex items-center gap-8">
