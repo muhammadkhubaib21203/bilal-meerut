@@ -10,11 +10,12 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 text-center pt-24 pb-28 sm:pt-28 sm:pb-24">
+      <div className="relative z-10 container mx-auto px-4 text-center pt-24 pb-28 sm:pt-28 sm:pb-24 flex flex-col items-center justify-center">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
+          className="flex flex-col items-center"
         >
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -34,21 +35,20 @@ const HeroSection = () => {
             <span className="text-foreground">Paratha</span>
           </h1>
 
-          <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-6 sm:mb-8">
+          <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl text-center mb-6 sm:mb-8">
             Authentic Meerut-style charcoal grilled kababs & freshly made parathas in Gulshan-e-Maymar, Karachi
           </p>
 
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-8 sm:mb-10">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex flex-wrap justify-center gap-4 mb-8 sm:mb-10">
+            <div className="flex items-center gap-2 text-sm text-foreground">
               <MapPin className="w-4 h-4 text-primary" />
               Sector X, Gulshan-e-Maymar
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-foreground">
               <Clock className="w-4 h-4 text-primary" />
               Open · Closes 3 AM
             </div>
           </div>
-
         </motion.div>
       </div>
 

@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { AreaSelectionModal } from "./AreaSelectionModal";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, total, updateQuantity, removeItem, clearCart } = useCart();
@@ -13,11 +14,11 @@ const CartDrawer = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [placing, setPlacing] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
-  const handlePlaceOrder = async () => {
+  const handleInitialClick = () => {
     if (!user) {
       setIsOpen(false);
       navigate("/auth");
@@ -28,16 +29,28 @@ const CartDrawer = () => {
       toast({ title: "Phone number required", variant: "destructive" });
       return;
     }
+    setPickerOpen(true);
+  };
+
+  const handleClearCart = () => {
+    clearCart();
+    setPhone("");
+    setNotes("");
+  };
+
+  const handlePlaceOrder = async (orderType: "delivery" | "pickup", address: string) => {
     setPlacing(true);
 
     const { data: order, error } = await supabase
       .from("orders")
       .insert({
-        user_id: user.id,
+        user_id: user!.id,
         total_amount: total,
         phone: phone.trim(),
-        delivery_address: address.trim() || null,
+        delivery_address: address,
+        order_type: orderType,
         notes: notes.trim() || null,
+        status: "pending",
       })
       .select()
       .single();
@@ -64,9 +77,9 @@ const CartDrawer = () => {
       toast({ title: "Order placed! 🔥", description: "We'll start preparing your food right away." });
       clearCart();
       setPhone("");
-      setAddress("");
       setNotes("");
       setIsOpen(false);
+      setPickerOpen(false);
       navigate("/my-orders");
     }
     setPlacing(false);
@@ -144,12 +157,6 @@ const CartDrawer = () => {
                       onChange={(e) => setPhone(e.target.value)}
                       className="w-full px-4 py-2.5 bg-secondary rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary text-sm"
                     />
-                    <input
-                      placeholder="Delivery address (optional)"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-secondary rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary text-sm"
-                    />
                     <textarea
                       placeholder="Special notes (optional)"
                       value={notes}
@@ -169,18 +176,25 @@ const CartDrawer = () => {
                   <span className="text-primary">Rs {total}</span>
                 </div>
                 <button
-                  onClick={handlePlaceOrder}
+                  onClick={handleInitialClick}
                   disabled={placing}
                   className="block w-full py-3.5 bg-gradient-fire rounded-xl text-primary-foreground font-semibold text-center hover:opacity-90 transition-opacity shadow-glow disabled:opacity-50"
                 >
                   {placing ? "Placing Order..." : user ? "Place Order" : "Sign In to Order"}
                 </button>
-                <button onClick={clearCart} className="w-full text-sm text-muted-foreground hover:text-destructive transition-colors">
+                <button onClick={handleClearCart} className="w-full text-sm text-muted-foreground hover:text-destructive transition-colors">
                   Clear Cart
                 </button>
               </div>
             )}
           </motion.div>
+          
+          <AreaSelectionModal 
+            isControlled={true}
+            open={pickerOpen} 
+            onOpenChange={setPickerOpen} 
+            onConfirm={handlePlaceOrder}
+          />
         </>
       )}
     </AnimatePresence>
