@@ -44,24 +44,12 @@ export const AreaSelectionModal = ({
   const { user } = useAuth();
   const [gettingLocation, setGettingLocation] = useState(false);
 
-  // Load saved values on mount if available
   useEffect(() => {
-    // Skip auto-popup if this modal instance is controlled by a parent (like CartDrawer)
-    if (isControlled) return;
-
-    // Show modal if user is logged in but hasn't made a selection
-    if (user) {
-      const hasSelected = localStorage.getItem(`area_selection_done_${user.id}`);
-      if (!hasSelected) {
-        // Small delay for better UX
-        const timer = setTimeout(() => setOpen(true), 500);
-        return () => clearTimeout(timer);
-      }
-    } else {
-      // Hide modal when user logs out
+    // Area picker opens only when explicitly triggered (e.g., Place Order).
+    if (!user) {
       setOpen?.(false);
     }
-  }, [user, isControlled, setOpen]);
+  }, [user, setOpen]);
   const areas = [
     "Gulshan-e-Maymar",
     "Scheme 33",
