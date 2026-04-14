@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { buildHeroHoursLabel } from "@/hooks/use-shop-settings";
 import {
   Flame,
   ArrowLeft,
@@ -12,10 +13,7 @@ import {
   Trash2,
   ChevronDown,
   Loader2,
-  UtensilsCrossed,
-  ShoppingBag,
   LogOut,
-  MessageSquare,
   CheckCircle2,
   Circle,
   Mail
@@ -43,8 +41,9 @@ const statuses = [
 const AdminPanelPage = () => {
   const { user, isAdmin, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const [tab, setTab] = useState<"menu" | "orders" | "messages">("orders");
+  const [tab, setTab] = useState<"menu" | "orders" | "messages" | "settings">("orders");
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -62,12 +61,36 @@ const AdminPanelPage = () => {
 
   const [orders, setOrders] = useState<OrderWithItems[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [shopSettingsId, setShopSettingsId] = useState<string | null>(null);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsForm, setSettingsForm] = useState({
+    shop_name: "Meerut Famous Kabab Paratha",
+    tagline: "Authentic Meerut-style charcoal grilled kababs & freshly made parathas in Gulshan-e-Maymar, Karachi",
+    location_short: "Sector X, Gulshan-e-Maymar",
+    location_full: "Main Nawaz Sharif Park, X 4th St, Sector X Gulshan-e-Maymar, Karachi, 75340, Pakistan",
+    phone: "+92 330 5577668",
+    open_hours_label: "Open Daily",
+    open_hours_value: "12:00 PM to 3:00 AM",
+    pickup_branch_name: "Gulshan-e-Maymar Branch",
+    pickup_branch_address: "Sector X, Gulshan-e-Maymar, Karachi",
+    map_embed_url: "https://maps.google.com/maps?q=25.0216392,67.1274399+(Meerut+Famous+Kabab+Paratha)&z=17&output=embed",
+    map_open_url: "https://www.google.com/maps/search/?api=1&query=Meerut+Famous+Kabab+Paratha+Main+Nawaz+Sharif+Park+Karachi",
+  });
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) navigate("/");
   }, [user, isAdmin, authLoading, navigate]);
+
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam === "messages" || tabParam === "settings" || tabParam === "orders") {
+      setTab(tabParam);
+      return;
+    }
+    setTab("orders");
+  }, [searchParams]);
 
   const fetchMenu = async () => {
     const { data } = await supabase
@@ -84,6 +107,32 @@ const AdminPanelPage = () => {
       .select("*")
       .order("created_at", { ascending: false });
     if (data) setMessages(data);
+  };
+
+  const fetchShopSettings = async () => {
+    const { data } = await supabase
+      .from("shop_settings")
+      .select("*")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (!data) return;
+
+    setShopSettingsId(data.id);
+    setSettingsForm({
+      shop_name: data.shop_name,
+      tagline: data.tagline,
+      location_short: data.location_short,
+      location_full: data.location_full,
+      phone: data.phone,
+      open_hours_label: data.open_hours_label,
+      open_hours_value: data.open_hours_value,
+      pickup_branch_name: data.pickup_branch_name,
+      pickup_branch_address: data.pickup_branch_address,
+      map_embed_url: data.map_embed_url,
+      map_open_url: data.map_open_url,
+    });
   };
 
   const fetchOrders = async () => {
@@ -107,11 +156,34 @@ const AdminPanelPage = () => {
 
   useEffect(() => {
     if (user && isAdmin) {
-      Promise.all([fetchMenu(), fetchOrders(), fetchMessages()]).then(() =>
+      Promise.all([fetchMenu(), fetchOrders(), fetchMessages(), fetchShopSettings()]).then(() =>
         setLoadingData(false),
       );
     }
   }, [user, isAdmin]);
+
+  const handleSaveShopSettings = async () => {
+    setSavingSettings(true);
+
+    const payload = {
+      ...settingsForm,
+      hero_hours_label: buildHeroHoursLabel(settingsForm.open_hours_value),
+    };
+
+    const result = shopSettingsId
+      ? await supabase.from("shop_settings").update(payload).eq("id", shopSettingsId)
+      : await supabase.from("shop_settings").insert(payload).select("id").single();
+
+    if (result.error) {
+      toast({ title: "Failed to save settings", description: result.error.message, variant: "destructive" });
+      setSavingSettings(false);
+      return;
+    }
+
+    toast({ title: "Shop settings updated" });
+    await fetchShopSettings();
+    setSavingSettings(false);
+  };
 
   const handleUpdateMessageStatus = async (messageId: string, status: string) => {
     const { error } = await supabase
@@ -265,31 +337,7 @@ const AdminPanelPage = () => {
           <img src="/logo.png" alt="Logo" className="w-40 h-auto object-contain" />
         </div>
 
-        <nav className="space-y-1 flex-1">
-          <button
-            onClick={() => setTab("orders")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${tab === "orders" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"}`}
-          >
-            <ShoppingBag className="w-4 h-4" /> Orders
-          </button>
-          <button
-            onClick={() => setTab("menu")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${tab === "menu" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"}`}
-          >
-            <UtensilsCrossed className="w-4 h-4" /> Menu Items
-          </button>
-          <button
-            onClick={() => setTab("messages")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${tab === "messages" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary"}`}
-          >
-            <div className="relative">
-              <MessageSquare className="w-4 h-4" />
-              {messages.filter(m => m.status === 'unread').length > 0 && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full"></span>
-              )}
-            </div> Messages
-          </button>
-        </nav>
+        <div className="flex-1" />
 
         <div className="space-y-2">
           <Link
@@ -311,29 +359,12 @@ const AdminPanelPage = () => {
         <div className="flex items-center">
           <img src="/logo.png" alt="Logo" className="w-28 h-auto object-contain" />
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setTab("orders")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium ${tab === "orders" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
-          >
-            Orders
-          </button>
-          <button
-            onClick={() => setTab("menu")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium ${tab === "menu" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
-          >
-            Menu
-          </button>
-          <button
-            onClick={() => setTab("messages")}
-            className={`relative px-3 py-1.5 rounded-lg text-xs font-medium ${tab === "messages" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
-          >
-            Messages
-            {messages.filter(m => m.status === 'unread').length > 0 && (
-              <span className="absolute 0 top-0 right-0 w-2 h-2 bg-destructive rounded-full translate-x-1/2 -translate-y-1/2"></span>
-            )}
-          </button>
-        </div>
+        <Link
+          to="/"
+          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-secondary text-secondary-foreground"
+        >
+          Back to Site
+        </Link>
       </div>
 
       <div className="md:ml-64 p-4 md:p-8">
@@ -763,6 +794,122 @@ const AdminPanelPage = () => {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {tab === "settings" && (
+          <div>
+            <h2 className="font-display text-2xl font-bold mb-6">Shop Settings</h2>
+            <div className="bg-card rounded-2xl border border-border p-6 shadow-card space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Shop Name</label>
+                  <input
+                    value={settingsForm.shop_name}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, shop_name: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Phone</label>
+                  <input
+                    value={settingsForm.phone}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm text-muted-foreground">Tagline</label>
+                  <textarea
+                    rows={2}
+                    value={settingsForm.tagline}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Hero Location (short)</label>
+                  <input
+                    value={settingsForm.location_short}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, location_short: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Hero Hours (auto)</label>
+                  <div className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground text-sm">
+                    {buildHeroHoursLabel(settingsForm.open_hours_value)}
+                  </div>
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm text-muted-foreground">Full Address</label>
+                  <textarea
+                    rows={2}
+                    value={settingsForm.location_full}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, location_full: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Open Hours Label</label>
+                  <input
+                    value={settingsForm.open_hours_label}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, open_hours_label: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Open Hours Value</label>
+                  <input
+                    value={settingsForm.open_hours_value}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, open_hours_value: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Pickup Branch Name</label>
+                  <input
+                    value={settingsForm.pickup_branch_name}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, pickup_branch_name: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground">Pickup Branch Address</label>
+                  <input
+                    value={settingsForm.pickup_branch_address}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, pickup_branch_address: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm text-muted-foreground">Map Embed URL</label>
+                  <input
+                    value={settingsForm.map_embed_url}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, map_embed_url: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm text-muted-foreground">Google Maps Open URL</label>
+                  <input
+                    value={settingsForm.map_open_url}
+                    onChange={(e) => setSettingsForm({ ...settingsForm, map_open_url: e.target.value })}
+                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={handleSaveShopSettings}
+                  disabled={savingSettings}
+                  className="px-6 py-2.5 bg-gradient-fire rounded-xl text-primary-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-60"
+                >
+                  {savingSettings ? "Saving..." : "Save Settings"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -197,6 +197,60 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_settings: {
+        Row: {
+          created_at: string
+          hero_hours_label: string
+          id: string
+          location_full: string
+          location_short: string
+          map_embed_url: string
+          map_open_url: string
+          open_hours_label: string
+          open_hours_value: string
+          phone: string
+          pickup_branch_address: string
+          pickup_branch_name: string
+          shop_name: string
+          tagline: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hero_hours_label?: string
+          id?: string
+          location_full?: string
+          location_short?: string
+          map_embed_url?: string
+          map_open_url?: string
+          open_hours_label?: string
+          open_hours_value?: string
+          phone?: string
+          pickup_branch_address?: string
+          pickup_branch_name?: string
+          shop_name?: string
+          tagline?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hero_hours_label?: string
+          id?: string
+          location_full?: string
+          location_short?: string
+          map_embed_url?: string
+          map_open_url?: string
+          open_hours_label?: string
+          open_hours_value?: string
+          phone?: string
+          pickup_branch_address?: string
+          pickup_branch_name?: string
+          shop_name?: string
+          tagline?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string

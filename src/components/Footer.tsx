@@ -1,5 +1,6 @@
-import { Flame, MapPin, Phone, Clock } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useShopSettings } from "@/hooks/use-shop-settings";
 
 const FacebookIcon = () => (
   <svg
@@ -52,6 +53,8 @@ const TwitterIcon = () => (
 );
 
 const Footer = () => {
+  const { settings } = useShopSettings();
+
   return (
     <footer className="bg-charcoal border-t border-border pt-16 pb-8">
       <div className="container mx-auto px-4">
@@ -62,7 +65,7 @@ const Footer = () => {
               <img src="/logo.png" alt="Logo" className="w-32 md:w-40 h-auto object-contain object-left" />
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Serving the most authentic Meerut-style charcoal grilled kababs and parathas in Gulshan-e-Maymar, Karachi.
+              {settings.tagline}
             </p>
             <div className="flex items-center gap-4 pt-2">
               <a href="#" className="w-12 h-12 flex items-center justify-center rounded-full bg-secondary text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors group">
@@ -96,12 +99,12 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <span className="text-sm text-muted-foreground">
-                  Main Nawaz Sharif Park, X 4th St, Sector X Gulshan-e-Maymar, Karachi, 75340, Pakistan
+                  {settings.locationFull}
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary flex-shrink-0" />
-                <a href="tel:+923305577668" className="text-sm text-muted-foreground hover:text-primary transition-colors">+92 330 5577668</a>
+                <a href={`tel:${settings.phone.replace(/\s+/g, "")}`} className="text-sm text-muted-foreground hover:text-primary transition-colors">{settings.phone}</a>
               </li>
             </ul>
           </div>
@@ -111,8 +114,8 @@ const Footer = () => {
             <h4 className="font-display font-semibold mb-6 text-foreground">Opening Hours</h4>
             <ul className="space-y-3">
               <li className="flex items-center justify-between text-sm text-muted-foreground border-b border-border/50 pb-2">
-                <span>Monday - Sunday</span>
-                <span className="font-medium text-foreground">12:00 PM - 3:00 AM</span>
+                <span>{settings.openHoursLabel}</span>
+                <span className="font-medium text-foreground">{settings.openHoursValue}</span>
               </li>
             </ul>
           </div>

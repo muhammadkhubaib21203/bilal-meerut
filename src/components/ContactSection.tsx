@@ -3,9 +3,11 @@ import { motion } from "framer-motion";
 import { MapPin, Phone, Clock, ExternalLink, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useShopSettings } from "@/hooks/use-shop-settings";
 
 const ContactSection = () => {
   const { toast } = useToast();
+  const { settings } = useShopSettings();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
 
@@ -56,29 +58,29 @@ const ContactSection = () => {
               <div className="p-5 bg-card rounded-2xl border border-border">
                 <MapPin className="w-8 h-8 text-primary mb-3" />
                 <h3 className="font-semibold mb-2">Location</h3>
-                <p className="text-muted-foreground text-sm font-medium mb-1">Meerut Famous Kabab Paratha</p>
-                <p className="text-muted-foreground text-sm">Main Nawaz Sharif Park, X 4th St, Sector X Gulshan-e-Maymar, Karachi, 75340, Pakistan</p>
+                <p className="text-muted-foreground text-sm font-medium mb-1">{settings.shopName}</p>
+                <p className="text-muted-foreground text-sm">{settings.locationFull}</p>
               </div>
 
               <div className="space-y-6">
                 <div className="p-5 bg-card rounded-2xl border border-border h-fit">
                   <Phone className="w-8 h-8 text-primary mb-3" />
                   <h3 className="font-semibold mb-2">Phone</h3>
-                  <a href="tel:+923305577668" className="text-muted-foreground hover:text-primary transition-colors text-sm block mb-1">
-                    +92 330 5577668
+                  <a href={`tel:${settings.phone.replace(/\s+/g, "")}`} className="text-muted-foreground hover:text-primary transition-colors text-sm block mb-1">
+                    {settings.phone}
                   </a>
                 </div>
                 <div className="p-5 bg-card rounded-2xl border border-border h-fit">
                   <Clock className="w-8 h-8 text-primary mb-3" />
                   <h3 className="font-semibold mb-2">Hours</h3>
-                  <p className="text-muted-foreground text-sm">Open Daily<br/>12:00 PM to 3:00 AM</p>
+                  <p className="text-muted-foreground text-sm">{settings.openHoursLabel}<br/>{settings.openHoursValue}</p>
                 </div>
               </div>
             </div>
 
             <div className="rounded-2xl overflow-hidden border border-border h-64 relative group">
               <iframe
-                src="https://maps.google.com/maps?q=25.0216392,67.1274399+(Meerut+Famous+Kabab+Paratha)&z=17&output=embed"
+                src={settings.mapEmbedUrl}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -89,7 +91,7 @@ const ContactSection = () => {
               />
               <div className="absolute inset-0 bg-background/20 pointer-events-none group-hover:bg-transparent transition-colors" />
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Meerut+Famous+Kabab+Paratha+Main+Nawaz+Sharif+Park+Karachi"
+                href={settings.mapOpenUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="absolute bottom-4 right-4 inline-flex items-center gap-2 px-4 py-2 bg-card/90 backdrop-blur rounded-lg text-foreground font-semibold hover:bg-primary hover:text-primary-foreground transition-all shadow-card text-sm pointer-events-auto border border-border"

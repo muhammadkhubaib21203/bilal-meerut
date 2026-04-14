@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
@@ -10,7 +10,7 @@ import { AreaSelectionModal } from "./AreaSelectionModal";
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, total, updateQuantity, removeItem, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [phone, setPhone] = useState("");
@@ -18,7 +18,19 @@ const CartDrawer = () => {
   const [placing, setPlacing] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
 
+  useEffect(() => {
+    if (isAdmin) {
+      setPickerOpen(false);
+      clearCart();
+    }
+  }, [isAdmin, clearCart]);
+
   const handleInitialClick = () => {
+    if (isAdmin) {
+      toast({ title: "Admin accounts cannot place orders", variant: "destructive" });
+      return;
+    }
+
     if (!user) {
       setIsOpen(false);
       navigate("/auth");
@@ -39,12 +51,17 @@ const CartDrawer = () => {
   };
 
   const handlePlaceOrder = async (orderType: "delivery" | "pickup", address: string) => {
+    if (isAdmin || !user) {
+      toast({ title: "Admin accounts cannot place orders", variant: "destructive" });
+      return;
+    }
+
     setPlacing(true);
 
     const { data: order, error } = await supabase
       .from("orders")
       .insert({
-        user_id: user!.id,
+        user_id: user.id,
         total_amount: total,
         phone: phone.trim(),
         delivery_address: address,
@@ -177,10 +194,10 @@ const CartDrawer = () => {
                 </div>
                 <button
                   onClick={handleInitialClick}
-                  disabled={placing}
+                  disabled={placing || isAdmin}
                   className="block w-full py-3.5 bg-gradient-fire rounded-xl text-primary-foreground font-semibold text-center hover:opacity-90 transition-opacity shadow-glow disabled:opacity-50"
                 >
-                  {placing ? "Placing Order..." : user ? "Place Order" : "Sign In to Order"}
+                  {placing ? "Placing Order..." : isAdmin ? "Ordering Disabled for Admin" : user ? "Place Order" : "Sign In to Order"}
                 </button>
                 <button onClick={handleClearCart} className="w-full text-sm text-muted-foreground hover:text-destructive transition-colors">
                   Clear Cart

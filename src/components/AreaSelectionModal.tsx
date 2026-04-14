@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { useShopSettings } from "@/hooks/use-shop-settings";
 
 export interface AreaSelectionModalProps {
   open?: boolean;
@@ -43,6 +44,7 @@ export const AreaSelectionModal = ({
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const [gettingLocation, setGettingLocation] = useState(false);
+  const { settings } = useShopSettings();
 
   useEffect(() => {
     // Area picker opens only when explicitly triggered (e.g., Place Order).
@@ -133,7 +135,9 @@ export const AreaSelectionModal = ({
     }
 
     setLoading(true);
-    const deliveryAddress = orderType === "delivery" ? `${addressLine.trim()}, ${sector}, ${area}, ${city}` : 'Pick-up: Gulshan-e-Maymar Branch';
+    const deliveryAddress = orderType === "delivery"
+      ? `${addressLine.trim()}, ${sector}, ${area}, ${city}`
+      : `Pick-up: ${settings.pickupBranchName}, ${settings.pickupBranchAddress}`;
 
     try {
       // If we have an external onConfirm handler mapping out the actual checkout process, use it!
@@ -279,8 +283,8 @@ export const AreaSelectionModal = ({
             ) : (
               <div className="w-full space-y-4">
                 <div className="p-4 rounded-md border-2 border-dashed border-primary/40 bg-primary/5 text-center">
-                  <p className="font-bold text-foreground text-lg">Gulshan-e-Maymar Branch</p>
-                  <p className="text-sm text-muted-foreground mt-1">Sector X, Gulshan-e-Maymar, Karachi</p>
+                  <p className="font-bold text-foreground text-lg">{settings.pickupBranchName}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{settings.pickupBranchAddress}</p>
                 </div>
               </div>
             )}

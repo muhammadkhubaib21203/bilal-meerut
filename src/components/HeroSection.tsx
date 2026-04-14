@@ -1,8 +1,13 @@
 import { motion } from "framer-motion";
 import { MapPin, Clock, Star } from "lucide-react";
 import heroBg from "@/assets/hero-bbq.jpg";
+import { useShopSettings } from "@/hooks/use-shop-settings";
+import { useAuth } from "@/context/AuthContext";
 
 const HeroSection = () => {
+  const { settings } = useShopSettings();
+  const { isAdmin } = useAuth();
+
   return (
     <section id="home" className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0">
@@ -28,25 +33,31 @@ const HeroSection = () => {
           </motion.div>
 
           <h1 className="font-display text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-3 sm:mb-4 leading-tight">
-            <span className="text-foreground">Bilal Meerut</span>
-            <br />
-            <span className="text-gradient-fire">Famous Kabab</span>
-            <br />
-            <span className="text-foreground">Paratha</span>
+            {isAdmin ? (
+              <p><span className="text-gradient-fire">Admin</span> Portal</p>
+            ) : (
+              <>
+                <span className="text-foreground">Bilal Meerut</span>
+                <br />
+                <span className="text-gradient-fire">Famous Kabab</span>
+                <br />
+                <span className="text-foreground">Paratha</span>
+              </>
+            )}
           </h1>
 
           <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl text-center mb-6 sm:mb-8">
-            Authentic Meerut-style charcoal grilled kababs & freshly made parathas in Gulshan-e-Maymar, Karachi
+            {settings.tagline}
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 mb-8 sm:mb-10">
             <div className="flex items-center gap-2 text-sm text-foreground">
               <MapPin className="w-4 h-4 text-primary" />
-              Sector X, Gulshan-e-Maymar
+              {settings.locationShort}
             </div>
             <div className="flex items-center gap-2 text-sm text-foreground">
               <Clock className="w-4 h-4 text-primary" />
-              Open · Closes 3 AM
+              {settings.heroHoursLabel}
             </div>
           </div>
         </motion.div>

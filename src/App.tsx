@@ -9,7 +9,9 @@ import { AuthProvider } from "@/context/AuthContext";
 
 const Index = lazy(() => import("./pages/Index.tsx"));
 const AuthPage = lazy(() => import("./pages/AuthPage.tsx"));
-const AdminPanelPage = lazy(() => import("./pages/admin/AdminPanelPage.tsx"));
+const AdminOrdersPage = lazy(() => import("./pages/admin/AdminOrdersPage.tsx"));
+const AdminMessagesPage = lazy(() => import("./pages/admin/AdminMessagesPage.tsx"));
+const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage.tsx"));
 const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
@@ -27,7 +29,9 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/admin" element={<AdminPanelPage />} />
+                <Route path="/admin/orders" element={<AdminOrdersPage />} />
+                <Route path="/admin/messages" element={<AdminMessagesPage />} />
+                <Route path="/admin/settings" element={<AdminSettingsPage />} />
                 <Route path="/my-orders" element={<MyOrdersPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Menu, X, Phone, User, LogOut, Shield, Package } from "lucide-react";
+import {
+  ShoppingCart,
+  Menu,
+  X,
+  Phone,
+  User,
+  LogOut,
+  Package,
+} from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
@@ -10,12 +18,19 @@ const Navbar = () => {
   const { user, isAdmin, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const links = [
-    { label: "Home", href: "#home" },
-    { label: "Menu", href: "#menu" },
-    { label: "Reviews", href: "#reviews" },
-    { label: "Contact", href: "#contact" },
-  ];
+  const links = isAdmin
+    ? [
+        { label: "Home", to: "/" },
+        { label: "Orders", to: "/admin/orders" },
+        { label: "Messages", to: "/admin/messages" },
+        { label: "Shop Settings", to: "/admin/settings" },
+      ]
+    : [
+        { label: "Home", href: "#home" },
+        { label: "Menu", href: "#menu" },
+        { label: "Reviews", href: "#reviews" },
+        { label: "Contact", href: "#contact" },
+      ];
 
   return (
     <motion.nav
@@ -26,51 +41,87 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 flex items-center justify-between h-16 md:h-20">
         <a href="#home" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Logo" className="w-40 h-40 object-contain" />
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="w-40 h-40 object-contain"
+          />
         </a>
 
         <div className="hidden md:flex items-center gap-8">
-          {links.map((l) => (
-            <a key={l.href} href={l.href} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) =>
+            "to" in l ? (
+              <Link
+                key={l.to}
+                to={l.to}
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                {l.label}
+              </Link>
+            ) : (
+              <a
+                key={l.href}
+                href={l.href}
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                {l.label}
+              </a>
+            ),
+          )}
         </div>
 
         <div className="flex items-center gap-2">
-          {user && (
-            <Link to="/my-orders" className="p-2 hover:bg-secondary rounded-lg transition-colors hidden md:block" title="My Orders">
+          {user && !isAdmin && (
+            <Link
+              to="/my-orders"
+              className="p-2 hover:bg-secondary rounded-lg transition-colors hidden md:block"
+              title="My Orders"
+            >
               <Package className="w-5 h-5 text-foreground" />
             </Link>
           )}
-          {isAdmin && (
-            <Link to="/admin" className="p-2 hover:bg-secondary rounded-lg transition-colors hidden md:block" title="Admin Panel">
-              <Shield className="w-5 h-5 text-primary" />
-            </Link>
+          {!isAdmin && (
+            <button
+              onClick={() => setIsOpen(true)}
+              className="relative p-2 hover:bg-secondary rounded-lg transition-colors"
+            >
+              <ShoppingCart className="w-5 h-5 text-foreground" />
+              {itemCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-fire rounded-full text-xs font-bold flex items-center justify-center text-primary-foreground"
+                >
+                  {itemCount}
+                </motion.span>
+              )}
+            </button>
           )}
-          <button onClick={() => setIsOpen(true)} className="relative p-2 hover:bg-secondary rounded-lg transition-colors">
-            <ShoppingCart className="w-5 h-5 text-foreground" />
-            {itemCount > 0 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-fire rounded-full text-xs font-bold flex items-center justify-center text-primary-foreground"
-              >
-                {itemCount}
-              </motion.span>
-            )}
-          </button>
           {user ? (
-            <button onClick={signOut} className="p-2 hover:bg-secondary rounded-lg transition-colors hidden md:block" title="Sign Out">
+            <button
+              onClick={signOut}
+              className="p-2 hover:bg-secondary rounded-lg transition-colors hidden md:block"
+              title="Sign Out"
+            >
               <LogOut className="w-5 h-5 text-muted-foreground" />
             </button>
           ) : (
-            <Link to="/auth" className="hidden md:block px-4 py-2 bg-gradient-fire rounded-xl text-primary-foreground text-sm font-semibold hover:opacity-90">
+            <Link
+              to="/auth"
+              className="hidden md:block px-4 py-2 bg-gradient-fire rounded-xl text-primary-foreground text-sm font-semibold hover:opacity-90"
+            >
               Sign In
             </Link>
           )}
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2">
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden p-2"
+          >
+            {mobileOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
           </button>
         </div>
       </div>
@@ -84,27 +135,52 @@ const Navbar = () => {
             className="md:hidden overflow-hidden bg-card border-t border-border"
           >
             <div className="px-4 py-4 flex flex-col gap-3">
-              {links.map((l) => (
-                <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="text-sm font-medium text-muted-foreground hover:text-primary py-2">
-                  {l.label}
-                </a>
-              ))}
-              {user && (
-                <Link to="/my-orders" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-muted-foreground hover:text-primary py-2 flex items-center gap-2">
+              {links.map((l) =>
+                "to" in l ? (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm font-medium text-muted-foreground hover:text-primary py-2"
+                  >
+                    {l.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm font-medium text-muted-foreground hover:text-primary py-2"
+                  >
+                    {l.label}
+                  </a>
+                ),
+              )}
+              {user && !isAdmin && (
+                <Link
+                  to="/my-orders"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-sm font-medium text-muted-foreground hover:text-primary py-2 flex items-center gap-2"
+                >
                   <Package className="w-4 h-4" /> My Orders
                 </Link>
               )}
-              {isAdmin && (
-                <Link to="/admin" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-primary py-2 flex items-center gap-2">
-                  <Shield className="w-4 h-4" /> Admin Panel
-                </Link>
-              )}
               {user ? (
-                <button onClick={() => { signOut(); setMobileOpen(false); }} className="text-sm font-medium text-muted-foreground hover:text-destructive py-2 flex items-center gap-2 text-left">
+                <button
+                  onClick={() => {
+                    signOut();
+                    setMobileOpen(false);
+                  }}
+                  className="text-sm font-medium text-muted-foreground hover:text-destructive py-2 flex items-center gap-2 text-left"
+                >
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
               ) : (
-                <Link to="/auth" onClick={() => setMobileOpen(false)} className="text-sm font-medium text-primary py-2 flex items-center gap-2">
+                <Link
+                  to="/auth"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-sm font-medium text-primary py-2 flex items-center gap-2"
+                >
                   <User className="w-4 h-4" /> Sign In
                 </Link>
               )}
