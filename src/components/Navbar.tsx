@@ -91,7 +91,7 @@ const Navbar = () => {
                 className={({ isActive }) =>
                   `text-sm font-medium px-4 py-2 rounded-xl transition-all ${
                     isActive
-                      ? "bg-primary text-primary-foreground font-bold shadow-glow"
+                      ? "bg-gradient-fire text-primary-foreground font-bold shadow-glow"
                       : "text-muted-foreground hover:bg-secondary hover:text-primary"
                   }`
                 }
@@ -104,7 +104,7 @@ const Navbar = () => {
                 href={l.href}
                 className={`text-sm font-medium px-4 py-2 rounded-xl transition-all ${
                   activeSection === l.href.slice(1)
-                    ? "bg-primary text-primary-foreground font-bold shadow-glow"
+                    ? "bg-gradient-fire text-primary-foreground font-bold shadow-glow"
                     : "text-muted-foreground hover:bg-secondary hover:text-primary"
                 }`}
               >
@@ -202,7 +202,7 @@ const Navbar = () => {
                     onClick={() => setMobileOpen(false)}
                     className={`text-sm font-medium py-3 px-4 rounded-xl transition-all ${
                       activeSection === l.href.slice(1)
-                        ? "bg-primary text-primary-foreground font-bold shadow-glow"
+                        ? "bg-gradient-fire text-primary-foreground font-bold shadow-glow"
                         : "text-muted-foreground hover:bg-secondary hover:text-primary"
                     }`}
                   >
