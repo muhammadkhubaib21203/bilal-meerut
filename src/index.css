@@ -6,6 +6,51 @@
 
 @layer base {
   :root {
+    --background: 40 30% 96%; /* Warm ivory/cream background for a culinary feel */
+    --foreground: 24 15% 15%; /* Deep rich espresso for premium contrast */
+
+    --card: 0 0% 100%; /* Pure white floating cards */
+    --card-foreground: 24 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 15% 15%;
+
+    --primary: 28 90% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 20% 90%; /* Soft elegant beige */
+    --secondary-foreground: 24 15% 20%;
+
+    --muted: 40 20% 90%;
+    --muted-foreground: 24 10% 45%;
+
+    --accent: 15 80% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 20% 86%; /* Gentle beige borders */
+    --input: 40 20% 86%;
+    --ring: 28 90% 55%;
+
+    --radius: 0.75rem;
+
+    --ember: 15 85% 50%;
+    --smoke: 40 25% 92%;
+    --gold: 42 80% 50%;
+    --charcoal: 40 30% 92%; /* Elegant deep beige footer */
+
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'DM Sans', sans-serif;
+
+    --gradient-fire: linear-gradient(135deg, hsl(28 90% 55%), hsl(15 80% 45%));
+    --gradient-smoke: linear-gradient(180deg, hsl(40 30% 96%), hsl(40 25% 91%));
+    --shadow-glow: 0 0 35px hsl(28 90% 55% / 0.15);
+    --shadow-card: 0 12px 36px -8px hsl(24 15% 15% / 0.08), 0 4px 12px -4px hsl(24 15% 15% / 0.04);
+  }
+
+  .dark {
     --background: 20 10% 8%;
     --foreground: 35 30% 90%;
 
@@ -34,17 +79,10 @@
     --input: 20 10% 20%;
     --ring: 28 90% 55%;
 
-    --radius: 0.75rem;
-
-    --ember: 15 85% 50%;
     --smoke: 20 5% 25%;
     --gold: 42 80% 55%;
     --charcoal: 20 10% 6%;
 
-    --font-display: 'Playfair Display', serif;
-    --font-body: 'DM Sans', sans-serif;
-
-    --gradient-fire: linear-gradient(135deg, hsl(28 90% 55%), hsl(15 80% 45%));
     --gradient-smoke: linear-gradient(180deg, hsl(20 10% 8%), hsl(20 10% 14%));
     --shadow-glow: 0 0 40px hsl(28 90% 55% / 0.15);
     --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.4);
