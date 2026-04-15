@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { buildHeroHoursLabel } from "@/hooks/use-shop-settings";
 import { Flame } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const AdminSettingsPage = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
@@ -100,9 +101,9 @@ const AdminSettingsPage = () => {
     <div className="min-h-screen bg-gradient-smoke">
       <Navbar />
       <div className="pt-24 md:pt-32 pb-16 px-4">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-7xl">
           <div className="mb-8 items-center">
-            <h1 className="font-display text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-fire">
+            <h1 className="font-display text-3xl md:text-5xl font-bold bg-clip-text text-gradient-fire pb-2">
               Shop Settings
             </h1>
             <p className="text-muted-foreground mt-2">Manage your shop's global appearance, timings, and location details.</p>
@@ -226,6 +227,7 @@ const AdminSettingsPage = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

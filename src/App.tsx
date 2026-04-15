@@ -12,6 +12,7 @@ const AuthPage = lazy(() => import("./pages/AuthPage.tsx"));
 const AdminOrdersPage = lazy(() => import("./pages/admin/AdminOrdersPage.tsx"));
 const AdminMessagesPage = lazy(() => import("./pages/admin/AdminMessagesPage.tsx"));
 const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage.tsx"));
+const AdminMenuPage = lazy(() => import("./pages/admin/AdminMenuPage.tsx"));
 const MyOrdersPage = lazy(() => import("./pages/MyOrdersPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
@@ -32,6 +33,7 @@ const App = () => (
                 <Route path="/admin/orders" element={<AdminOrdersPage />} />
                 <Route path="/admin/messages" element={<AdminMessagesPage />} />
                 <Route path="/admin/settings" element={<AdminSettingsPage />} />
+                <Route path="/admin/menu" element={<AdminMenuPage />} />
                 <Route path="/my-orders" element={<MyOrdersPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

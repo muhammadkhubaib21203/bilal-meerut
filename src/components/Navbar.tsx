@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCart,
@@ -11,16 +11,40 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const Navbar = () => {
   const { itemCount, setIsOpen } = useCart();
   const { user, isAdmin, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
+
+  useEffect(() => {
+    if (isAdmin) return;
+
+    const handleScroll = () => {
+      const sections = ["home", "menu", "reviews", "contact"];
+      let current = "home";
+      for (const section of sections) {
+        const el = document.getElementById(section);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 120) {
+            current = section;
+          }
+        }
+      }
+      setActiveSection(current);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isAdmin]);
 
   const links = isAdmin
     ? [
-        { label: "Home", to: "/" },
+        { label: "Products", to: "/admin/menu" },
         { label: "Orders", to: "/admin/orders" },
         { label: "Messages", to: "/admin/messages" },
         { label: "Shop Settings", to: "/admin/settings" },
@@ -40,29 +64,49 @@ const Navbar = () => {
       className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border"
     >
       <div className="container mx-auto px-4 flex items-center justify-between h-16 md:h-20">
-        <a href="#home" className="flex items-center gap-2">
-          <img
-            src="/logo.png"
-            alt="Logo"
-            className="w-40 h-40 object-contain"
-          />
-        </a>
+        {isAdmin ? (
+          <Link to="/admin/menu" className="flex items-center gap-2">
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-40 h-40 object-contain"
+            />
+          </Link>
+        ) : (
+          <a href="#home" className="flex items-center gap-2">
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-40 h-40 object-contain"
+            />
+          </a>
+        )}
 
         <div className="hidden md:flex items-center gap-8">
           {links.map((l) =>
             "to" in l ? (
-              <Link
+              <NavLink
                 key={l.to}
                 to={l.to}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className={({ isActive }) =>
+                  `text-sm font-medium px-4 py-2 rounded-xl transition-all ${
+                    isActive
+                      ? "bg-primary text-primary-foreground font-bold shadow-glow"
+                      : "text-muted-foreground hover:bg-secondary hover:text-primary"
+                  }`
+                }
               >
                 {l.label}
-              </Link>
+              </NavLink>
             ) : (
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                className={`text-sm font-medium px-4 py-2 rounded-xl transition-all ${
+                  activeSection === l.href.slice(1)
+                    ? "bg-primary text-primary-foreground font-bold shadow-glow"
+                    : "text-muted-foreground hover:bg-secondary hover:text-primary"
+                }`}
               >
                 {l.label}
               </a>
@@ -137,20 +181,30 @@ const Navbar = () => {
             <div className="px-4 py-4 flex flex-col gap-3">
               {links.map((l) =>
                 "to" in l ? (
-                  <Link
+                  <NavLink
                     key={l.to}
                     to={l.to}
                     onClick={() => setMobileOpen(false)}
-                    className="text-sm font-medium text-muted-foreground hover:text-primary py-2"
+                    className={({ isActive }) =>
+                      `text-sm font-medium py-3 px-4 rounded-xl transition-all ${
+                        isActive
+                          ? "bg-primary text-primary-foreground font-bold shadow-glow"
+                          : "text-muted-foreground hover:bg-secondary hover:text-primary"
+                      }`
+                    }
                   >
                     {l.label}
-                  </Link>
+                  </NavLink>
                 ) : (
                   <a
                     key={l.href}
                     href={l.href}
                     onClick={() => setMobileOpen(false)}
-                    className="text-sm font-medium text-muted-foreground hover:text-primary py-2"
+                    className={`text-sm font-medium py-3 px-4 rounded-xl transition-all ${
+                      activeSection === l.href.slice(1)
+                        ? "bg-primary text-primary-foreground font-bold shadow-glow"
+                        : "text-muted-foreground hover:bg-secondary hover:text-primary"
+                    }`}
                   >
                     {l.label}
                   </a>

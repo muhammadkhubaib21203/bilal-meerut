@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Flame, ChevronDown } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 type Order = Tables<"orders">;
 type OrderItem = Tables<"order_items">;
@@ -91,9 +92,9 @@ const AdminOrdersPage = () => {
     <div className="min-h-screen bg-gradient-smoke">
       <Navbar />
       <div className="pt-24 md:pt-32 pb-16 px-4">
-        <div className="container mx-auto max-w-5xl">
+        <div className="container mx-auto max-w-7xl">
           <div className="mb-8 flex items-center justify-between">
-            <h1 className="font-display text-3xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-fire">
+            <h1 className="font-display text-3xl md:text-5xl font-bold bg-clip-text text-gradient-fire pb-2">
               Order Management
             </h1>
             <div className="bg-card/80 border border-border rounded-2xl px-6 py-3 shadow-card text-center">
@@ -228,6 +229,7 @@ const AdminOrdersPage = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
