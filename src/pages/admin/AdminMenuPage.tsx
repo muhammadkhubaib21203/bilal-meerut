@@ -179,7 +179,7 @@ const AdminMenuPage = () => {
       <div className="pt-24 md:pt-32 pb-16 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="font-display text-3xl md:text-5xl font-bold bg-clip-text text-gradient-fire">
+            <h1 className="font-display text-3xl md:text-5xl font-bold bg-clip-text text-gradient-fire pb-2">
               Menu Management
             </h1>
             <button
