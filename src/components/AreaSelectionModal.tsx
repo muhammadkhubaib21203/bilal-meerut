@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { LocateFixed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -43,7 +42,6 @@ export const AreaSelectionModal = ({
   const [addressLine, setAddressLine] = useState("");
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
-  const [gettingLocation, setGettingLocation] = useState(false);
   const { settings } = useShopSettings();
 
   useEffect(() => {
@@ -73,60 +71,6 @@ export const AreaSelectionModal = ({
     "Sector Y",
     "Sector Z"
   ];
-
-  const handleGetCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
-      return;
-    }
-
-    setGettingLocation(true);
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        try {
-          const { latitude, longitude } = position.coords;
-          // Use OpenStreetMap Nominatim API for reverse geocoding
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-          );
-          
-          if (!response.ok) throw new Error("Network response was not ok");
-          
-          const data = await response.json();
-          if (data && data.display_name) {
-            setAddressLine(data.display_name);
-            toast.success("Location retrieved successfully!");
-          } else {
-            toast.error("Could not determine your address");
-          }
-        } catch (error) {
-          console.error("Error fetching address:", error);
-          toast.error("Failed to get address from coordinates");
-        } finally {
-          setGettingLocation(false);
-        }
-      },
-      (error) => {
-        console.error("Geolocation error:", error);
-        setGettingLocation(false);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            toast.error("Location permission denied");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            toast.error("Location information is unavailable");
-            break;
-          case error.TIMEOUT:
-            toast.error("The request to get user location timed out");
-            break;
-          default:
-            toast.error("An unknown error occurred getting location");
-            break;
-        }
-      },
-      { timeout: 10000 }
-    );
-  };
 
   const handleSelect = async () => {
     if (orderType === "delivery" && (!area || !sector || !addressLine.trim())) {
@@ -222,18 +166,6 @@ export const AreaSelectionModal = ({
             <p className="text-foreground font-medium mb-4 text-[16px]">
               {orderType === "delivery" ? "Please select your location" : "Choose pickup branch"}
             </p>
-            
-            {orderType === "delivery" && (
-              <Button 
-                variant="default"
-                onClick={handleGetCurrentLocation}
-                disabled={gettingLocation}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-5 h-10 font-semibold text-[13px] shadow-sm mb-6 flex items-center gap-2 disabled:opacity-70"
-              >
-                <LocateFixed className={cn("w-[15px] h-[15px]", gettingLocation && "animate-pulse")} />
-                {gettingLocation ? "Locating..." : "Use Current Location"}
-              </Button>
-            )}
 
             {orderType === "delivery" ? (
               <div className="space-y-4 w-full">
