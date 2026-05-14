@@ -62,17 +62,19 @@ const HeroSection = () => {
         </motion.div>
       </div>
 
-      <motion.a
-        href="#menu"
-        aria-label="Scroll to menu"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="absolute z-30 bottom-10 sm:bottom-12 left-1/2 -translate-x-1/2"
-      >
-        <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-1.5 bg-background/20 backdrop-blur-sm">
-          <div className="w-1.5 h-3 bg-primary rounded-full" />
-        </div>
-      </motion.a>
+      <div className="absolute z-30 bottom-10 sm:bottom-12 w-full flex justify-center pb-2">
+        <motion.a
+          href="#menu"
+          aria-label="Scroll to menu"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="block"
+        >
+          <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center p-1.5 bg-background/20 backdrop-blur-sm">
+            <div className="w-1.5 h-3 bg-primary rounded-full" />
+          </div>
+        </motion.a>
+      </div>
     </section>
   );
 };
