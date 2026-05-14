@@ -52,11 +52,7 @@ export const AreaSelectionModal = ({
   }, [user, setOpen]);
   const areas = [
     "Gulshan-e-Maymar",
-    "Scheme 33",
-    "Ahsanabad",
-    "Surjani Town",
-    "North Karachi",
-    "New Karachi"
+    "Ahsanabad", 
   ];
 
   const sectors = [
@@ -73,14 +69,16 @@ export const AreaSelectionModal = ({
   ];
 
   const handleSelect = async () => {
-    if (orderType === "delivery" && (!area || !sector || !addressLine.trim())) {
-      toast.error("Please fill in all delivery location and address details.");
-      return;
+    if (orderType === "delivery") {
+      if (!area || !addressLine.trim() || (area === "Gulshan-e-Maymar" && !sector)) {
+        toast.error("Please fill in all delivery location and address details.");
+        return;
+      }
     }
 
     setLoading(true);
     const deliveryAddress = orderType === "delivery"
-      ? `${addressLine.trim()}, ${sector}, ${area}, ${city}`
+      ? `${addressLine.trim()}${area === "Gulshan-e-Maymar" ? `, ${sector}` : ""}, ${area}, ${city}`
       : `Pick-up: ${settings.pickupBranchName}, ${settings.pickupBranchAddress}`;
 
     try {
@@ -191,18 +189,20 @@ export const AreaSelectionModal = ({
                   </SelectContent>
                 </Select>
 
-                <Select value={sector} onValueChange={setSector}>
-                  <SelectTrigger className="w-full text-foreground bg-background rounded-md border-border h-12 text-[15px] px-4 shadow-sm focus:ring-1 focus:ring-primary focus:border-primary">
-                    <SelectValue placeholder="Select Sector" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border max-h-[200px]">
-                    {sectors.map((s) => (
-                      <SelectItem key={s} value={s} className="focus:bg-primary/20 focus:text-foreground cursor-pointer">
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {area === "Gulshan-e-Maymar" && (
+                  <Select value={sector} onValueChange={setSector}>
+                    <SelectTrigger className="w-full text-foreground bg-background rounded-md border-border h-12 text-[15px] px-4 shadow-sm focus:ring-1 focus:ring-primary focus:border-primary">
+                      <SelectValue placeholder="Select Sector" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border max-h-[200px]">
+                      {sectors.map((s) => (
+                        <SelectItem key={s} value={s} className="focus:bg-primary/20 focus:text-foreground cursor-pointer">
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
 
                 <input
                   type="text"
