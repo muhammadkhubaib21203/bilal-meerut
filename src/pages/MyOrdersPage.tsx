@@ -77,7 +77,7 @@ const MyOrdersPage = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-8 max-w-7xl">
+      <div className="relative z-10 container mx-auto px-4 py-8 max-w-5xl">
         <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Menu
         </Link>

@@ -100,9 +100,9 @@ const AdminSettingsPage = () => {
   return (
     <div className="min-h-screen bg-gradient-smoke">
       <Navbar />
-      <div className="pt-24 md:pt-32 pb-16 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-8 items-center">
+      <div className="pt-24 md:pt-32 pb-16 px-3 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="mb-8 items-start sm:items-center">
             <h1 className="font-display text-3xl md:text-5xl font-bold bg-clip-text text-gradient-fire pb-2">
               Shop Settings
             </h1>

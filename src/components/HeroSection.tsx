@@ -41,7 +41,7 @@ const HeroSection = () => {
                 <br />
                 <span className="text-gradient-fire">Famous Kabab</span>
                 <br />
-                <span className="text-foreground">Paratha</span>
+                <span className="text-foreground">House</span>
               </>
             )}
           </h1>

@@ -14,7 +14,7 @@ const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -40,7 +40,12 @@ const AuthPage = () => {
       if (error) {
         toast({ title: "Signup Failed", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: "Account created! 🎉", description: "Please check your email to verify your account." });
+        await signOut();
+        setIsLogin(true);
+        setPassword("");
+        setShowPassword(false);
+        setFullName("");
+        toast({ title: "Account created! 🎉", description: "Please sign in to continue." });
       }
     }
     setLoading(false);

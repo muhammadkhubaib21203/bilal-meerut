@@ -176,9 +176,9 @@ const AdminMenuPage = () => {
   return (
     <div className="min-h-screen bg-gradient-smoke">
       <Navbar />
-      <div className="pt-24 md:pt-32 pb-16 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <div className="flex items-center justify-between mb-8">
+      <div className="pt-24 md:pt-32 pb-16 px-3 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <h1 className="font-display text-3xl md:text-5xl font-bold bg-clip-text text-gradient-fire pb-2">
               Menu Management
             </h1>

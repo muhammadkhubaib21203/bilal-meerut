@@ -91,9 +91,9 @@ const AdminOrdersPage = () => {
   return (
     <div className="min-h-screen bg-gradient-smoke">
       <Navbar />
-      <div className="pt-24 md:pt-32 pb-16 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <div className="mb-8 flex items-center justify-between">
+      <div className="pt-24 md:pt-32 pb-16 px-3 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <h1 className="font-display text-3xl md:text-5xl font-bold bg-clip-text text-gradient-fire pb-2">
               Order Management
             </h1>
@@ -123,18 +123,23 @@ const AdminOrdersPage = () => {
                         expandedOrder === order.id ? null : order.id,
                       )
                     }
-                    className="w-full flex items-center justify-between p-5 text-left"
+                    className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 text-left gap-4"
                   >
-                    <div>
-                      <p className="font-semibold text-lg md:text-xl">
-                        Order #{order.id.slice(0, 8)}
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {new Date(order.created_at).toLocaleString()}
-                      </p>
+                    <div className="w-full flex justify-between sm:block">
+                      <div>
+                        <p className="font-semibold text-lg md:text-xl">
+                          Order #{order.id.slice(0, 8)}
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {new Date(order.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      <span className="text-primary font-bold sm:hidden items-center self-center text-lg">
+                        Rs {order.total_amount}
+                      </span>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-primary font-bold hidden sm:inline-block">
+                    <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end mt-2 sm:mt-0">
+                      <span className="text-primary font-bold hidden sm:inline-block border-r border-border pr-4">
                         Rs {order.total_amount}
                       </span>
                       <span

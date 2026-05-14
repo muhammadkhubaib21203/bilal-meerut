@@ -31,7 +31,7 @@ const ContactSection = () => {
 
   return (
     <section id="contact" className="py-20 bg-gradient-smoke">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
