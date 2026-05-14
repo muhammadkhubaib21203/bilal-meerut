@@ -6,7 +6,6 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
-import { categories as defaultCategories } from "@/data/menu";
 
 // Fallback images
 import seekhKababImg from "@/assets/seekh-kabab.jpg";
@@ -144,7 +143,7 @@ const MenuSection = () => {
 
   // Get unique categories from DB items
   const dbCategories = ["All", ...Array.from(new Set(menuItems.map((i) => i.category)))];
-  const categories = dbCategories.length > 1 ? dbCategories : defaultCategories;
+  const categories = dbCategories;
 
   const filtered = active === "All" ? menuItems : menuItems.filter((i) => i.category === active);
 
