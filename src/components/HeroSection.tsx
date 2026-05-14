@@ -39,8 +39,7 @@ const HeroSection = () => {
               <>
                 <span className="text-foreground">Bilal Meerut</span>
                 <br />
-                <span className="text-gradient-fire">Kabab</span>
-                <br />
+                <span className="text-gradient-fire">Kabab</span>{" "}
                 <span className="text-foreground">House</span>
               </>
             )}
