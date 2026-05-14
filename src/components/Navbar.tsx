@@ -11,14 +11,11 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/components/ThemeProvider";
 import { Link, NavLink } from "react-router-dom";
-import { Moon, Sun } from "lucide-react";
 
 const Navbar = () => {
   const { itemCount, setIsOpen } = useCart();
   const { user, isAdmin, signOut } = useAuth();
-  const { theme, setTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
 
@@ -118,14 +115,6 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 border border-border bg-card/60 hover:bg-secondary rounded-lg transition-colors hidden md:flex items-center justify-center mr-1"
-            title="Toggle theme"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-foreground" /> : <Moon className="w-4 h-4 text-foreground" />}
-          </button>
-
           {user && !isAdmin && (
             <Link
               to="/my-orders"
@@ -177,14 +166,6 @@ const Navbar = () => {
             ) : (
               <Menu className="w-5 h-5" />
             )}
-          </button>
-          
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="md:hidden p-2 ml-1 border border-border bg-card/60 hover:bg-secondary rounded-lg transition-colors flex items-center justify-center"
-            title="Toggle theme"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-foreground" /> : <Moon className="w-4 h-4 text-foreground" />}
           </button>
         </div>
       </div>
