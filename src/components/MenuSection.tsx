@@ -211,7 +211,7 @@ const MenuSection = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3 }}
-                  className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/30 transition-all shadow-card hover:shadow-glow"
+                  className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/30 transition-all shadow-card hover:shadow-glow flex flex-col"
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
@@ -226,27 +226,29 @@ const MenuSection = () => {
                       </div>
                     )}
                   </div>
-                  <div className="p-5">
+                  <div className="p-5 flex flex-col flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-display text-lg font-semibold text-foreground">{item.name}</h3>
                       <span className="text-primary font-bold text-lg">Rs {item.price}</span>
                     </div>
                     <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{item.description}</p>
-                    {isAdmin ? (
-                      <button
-                        onClick={() => openEditModal(item)}
-                        className="w-full py-2.5 bg-secondary hover:bg-primary hover:text-primary-foreground rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2"
-                      >
-                        <Pencil className="w-4 h-4" /> Edit Product
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleAddToCart(item)}
-                        className="w-full py-2.5 bg-secondary hover:bg-primary hover:text-primary-foreground rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2"
-                      >
-                        <Plus className="w-4 h-4" /> Add to Cart
-                      </button>
-                    )}
+                    <div className="mt-auto">
+                      {isAdmin ? (
+                        <button
+                          onClick={() => openEditModal(item)}
+                          className="w-full py-2.5 bg-secondary hover:bg-primary hover:text-primary-foreground rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2"
+                        >
+                          <Pencil className="w-4 h-4" /> Edit Product
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleAddToCart(item)}
+                          className="w-full py-2.5 bg-secondary hover:bg-primary hover:text-primary-foreground rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2"
+                        >
+                          <Plus className="w-4 h-4" /> Add to Cart
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </motion.div>
               ))}
