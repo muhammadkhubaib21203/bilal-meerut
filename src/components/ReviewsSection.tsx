@@ -4,21 +4,18 @@ import { Star, Quote } from "lucide-react";
 const reviews = [
   {
     name: "Abbas Ahmed",
-    role: "Local Guide · 8 reviews",
     rating: 5,
     text: "Cleanliness 👌 Tikka 👌👌 The kababs are absolutely amazing, grilled perfectly on charcoal. Best BBQ spot in Gulshan-e-Maymar!",
     time: "2 months ago",
   },
   {
-    name: "Queen Pakistani",
-    role: "1 review",
+    name: "Khadija Dilawar",
     rating: 5,
-    text: "So happy that we finally have a new BBQ place in our town! The location is perfect — beautifully set up, and gives such a warm, welcoming vibe. 🔥",
+    text: "Excellent service and delicious food",
     time: "4 months ago",
   },
   {
     name: "Awais Abbasi",
-    role: "Local Guide · 67 reviews",
     rating: 4,
     text: "Good place for BBQ items. Atmosphere is good 👍🏼 Fast service with good quality food. Highly recommended for BBQ lovers.",
     time: "3 months ago",
@@ -65,9 +62,9 @@ const ReviewsSection = () => {
                   <Star key={j} className="w-4 h-4 text-gold fill-gold" />
                 ))}
               </div>
-              <div>
+              <div className="flex items-center justify-between">
                 <p className="font-semibold text-sm">{r.name}</p>
-                <p className="text-muted-foreground text-xs">{r.role} · {r.time}</p>
+                <p className="text-muted-foreground text-xs">{r.time}</p>
               </div>
             </motion.div>
           ))}
