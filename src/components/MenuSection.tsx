@@ -298,7 +298,7 @@ const MenuSection = () => {
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                     className="px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
                   >
-                    {["BBQ", "Paratha", "Rolls", "Sides", "Drinks"].map((category) => (
+                    {["Burgers", "Broast", "Sandwiches", "BBQ", "Rolls", "Dessert", "Karahi", "Handi", "Gyro", "Extras"].map((category) => (
                       <option key={category} value={category}>{category}</option>
                     ))}
                   </select>

@@ -8,6 +8,13 @@ import { Flame, Plus, Pencil, Trash2, Loader2, ImagePlus } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type MenuItem = Tables<"menu_items">;
 
@@ -217,17 +224,21 @@ const AdminMenuPage = () => {
                     onChange={(e) => setForm({ ...form, price: e.target.value })}
                     className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary text-sm"
                   />
-                  <select
+                  <Select
                     value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    className="w-full px-4 py-3 bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm"
+                    onValueChange={(value) => setForm({ ...form, category: value })}
                   >
-                    {["BBQ", "Paratha", "Rolls", "Sides", "Drinks"].map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full h-[46px] bg-secondary rounded-xl border border-border text-foreground focus:outline-none focus:border-primary text-sm">
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["Burgers", "Broast", "Sandwiches", "BBQ", "Rolls", "Dessert", "Karahi", "Handi", "Gyro", "Extras"].map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 <div className="space-y-4">
@@ -260,7 +271,7 @@ const AdminMenuPage = () => {
                               <Loader2 className="w-4 h-4 animate-spin" /> Uploading...
                             </>
                           ) : (
-                            <>Upload to 'food_pics' bucket</>
+                            <>Upload your product image here</>
                           )}
                           <input
                             type="file"
