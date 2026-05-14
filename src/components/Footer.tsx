@@ -84,10 +84,10 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-semibold mb-6 text-foreground">Explore</h4>
             <ul className="space-y-3">
-              <li><a href="#home" className="text-sm text-muted-foreground hover:text-primary transition-colors">Home</a></li>
-              <li><a href="#menu" className="text-sm text-muted-foreground hover:text-primary transition-colors">Our Menu</a></li>
-              <li><a href="#reviews" className="text-sm text-muted-foreground hover:text-primary transition-colors">Customer Reviews</a></li>
-              <li><a href="#contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact Us</a></li>
+              <li><Link to="/#home" className="text-sm text-muted-foreground hover:text-primary transition-colors">Home</Link></li>
+              <li><Link to="/#menu" className="text-sm text-muted-foreground hover:text-primary transition-colors">Our Menu</Link></li>
+              <li><Link to="/#reviews" className="text-sm text-muted-foreground hover:text-primary transition-colors">Customer Reviews</Link></li>
+              <li><Link to="/#contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact Us</Link></li>
               <li><Link to="/auth" className="text-sm text-muted-foreground hover:text-primary transition-colors">Sign In / Register</Link></li>
             </ul>
           </div>
