@@ -12,12 +12,52 @@ import {
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { Link, NavLink } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
   const { itemCount, setIsOpen } = useCart();
   const { user, isAdmin, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [undeliveredOrders, setUndeliveredOrders] = useState(0);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const fetchCounts = async () => {
+      const { count: msgCount } = await supabase
+        .from("contact_messages")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "unread");
+        
+      const { data: orders } = await supabase
+        .from("orders")
+        .select("status");
+        
+      const orderCount = orders?.filter(o => o.status !== "delivered" && o.status !== "cancelled").length || 0;
+      
+      setUnreadMessages(msgCount || 0);
+      setUndeliveredOrders(orderCount);
+    };
+
+    fetchCounts();
+
+    const msgSub = supabase
+      .channel("msg_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "contact_messages" }, fetchCounts)
+      .subscribe();
+
+    const ordSub = supabase
+      .channel("ord_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, fetchCounts)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(msgSub);
+      supabase.removeChannel(ordSub);
+    };
+  }, [isAdmin]);
 
   useEffect(() => {
     if (isAdmin) return;
@@ -45,8 +85,8 @@ const Navbar = () => {
   const links = isAdmin
     ? [
         { label: "Products", to: "/admin/menu" },
-        { label: "Orders", to: "/admin/orders" },
-        { label: "Messages", to: "/admin/messages" },
+        { label: "Orders", to: "/admin/orders", count: undeliveredOrders },
+        { label: "Messages", to: "/admin/messages", count: unreadMessages },
         { label: "Shop Settings", to: "/admin/settings" },
       ]
     : [
@@ -89,7 +129,7 @@ const Navbar = () => {
                 key={l.to}
                 to={l.to}
                 className={({ isActive }) =>
-                  `text-sm font-medium px-4 py-2 rounded-xl transition-all ${
+                  `text-sm font-medium px-4 py-2 rounded-xl transition-all flex items-center gap-2 ${
                     isActive
                       ? "bg-gradient-fire text-primary-foreground font-bold shadow-glow"
                       : "text-muted-foreground hover:bg-secondary hover:text-primary"
@@ -97,6 +137,11 @@ const Navbar = () => {
                 }
               >
                 {l.label}
+                {l.count > 0 && (
+                  <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-xs font-bold">
+                    {l.count}
+                  </span>
+                )}
               </NavLink>
             ) : (
               <a
@@ -186,7 +231,7 @@ const Navbar = () => {
                     to={l.to}
                     onClick={() => setMobileOpen(false)}
                     className={({ isActive }) =>
-                      `text-sm font-medium py-3 px-4 rounded-xl transition-all ${
+                      `text-sm font-medium py-3 px-4 rounded-xl transition-all flex items-center justify-between ${
                         isActive
                           ? "bg-primary text-primary-foreground font-bold shadow-glow"
                           : "text-muted-foreground hover:bg-secondary hover:text-primary"
@@ -194,6 +239,11 @@ const Navbar = () => {
                     }
                   >
                     {l.label}
+                    {l.count > 0 && (
+                      <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-xs font-bold">
+                        {l.count}
+                      </span>
+                    )}
                   </NavLink>
                 ) : (
                   <a

@@ -111,11 +111,17 @@ const AdminOrdersPage = () => {
             </p>
           ) : (
             <div className="space-y-4">
-              {orders.map((order) => (
+              {orders.map((order) => {
+                const isUndelivered = !["delivered", "cancelled"].includes(order.status);
+                return (
                 <motion.div
                   key={order.id}
                   layout
-                  className="bg-card/90 rounded-2xl border border-border overflow-hidden shadow-card"
+                  className={`bg-card/90 rounded-2xl border overflow-hidden transition-all ${
+                    isUndelivered
+                      ? "border-primary shadow-[0_0_15px_rgba(255,100,50,0.2)] ring-1 ring-primary/30"
+                      : "border-border shadow-card"
+                  }`}
                 >
                   <button
                     onClick={() =>
@@ -229,7 +235,8 @@ const AdminOrdersPage = () => {
                     </motion.div>
                   )}
                 </motion.div>
-              ))}
+              );
+              })}
             </div>
           )}
         </div>
